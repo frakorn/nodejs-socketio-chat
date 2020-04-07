@@ -14,8 +14,9 @@ io.on('connection', (socket) => {
 
     socket.on('new-message', (message) => {
       console.log(message);
-    });
+	  socket.emit('new-message', message);
 });
+})
 
 server.listen(port, () => {
     console.log(`started on port: ${port}`);
