@@ -8,10 +8,14 @@ const port = process.env.PORT || 3000;
 
 io.on('connection', (socket) => {
     console.log('user connected');
+    socket.on('new-user', (user) => {
+        console.log('new user: ' + user);
+        io.sockets.emit('new-user', user);
+    });
     socket.on('new-message', (message) => {
-      console.log(message);
-	  io.sockets.emit('new-message', message);
-});
+        console.log(message);
+        io.sockets.emit('new-message', message);
+    });
 })
 
 server.listen(port, () => {
