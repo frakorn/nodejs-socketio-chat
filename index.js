@@ -13,9 +13,13 @@ io.on('connection', (socket) => {
         io.sockets.emit('new-user', user);
     });
     socket.on('new-message', (message) => {
-        console.log(message);
+        console.log('message: '+message.message);
         io.sockets.emit('new-message', message);
     });
+    socket.on('user-leave', (user) => {
+        console.log('user ' + user + ' leave');
+        io.sockets.emit('user-leave', user);
+    });    
 })
 
 server.listen(port, () => {
