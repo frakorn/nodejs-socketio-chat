@@ -7,6 +7,7 @@ let io = socketIO(server);
 const port = process.env.PORT || 3000;
 const colors = ['#F68C40', '#8F83F3', '#E76651', '#519BE2', '#F37298', '#7BB46C', '#265CD4', '#02B9A0', '#F80000', '#2F3035'];
 let userList = [];
+let actionObj = {};
 const aliveSeconds = 15;
 
 const updateUsers = () => {
@@ -16,9 +17,16 @@ const updateUsers = () => {
 
 io.on('connection', (socket) => {
     socket.on('new-user', (user) => {
-        console.log('new user: ' + user);
-        userList.push({ 'username': user, ts: new Date().getTime(), color: colors[Math.floor(Math.random() * colors.length-1)] })
-        io.sockets.emit('update-users', userList);
+        if(!userList.find(u =>u.username===user)){
+            console.log('new user: ' + user);
+            userList.push({ 'username': user, ts: new Date().getTime(), color: colors[Math.floor(Math.random() * colors.length-1)] })
+            actionObj = {'action':'new-user','username':user,'userList':userList};
+            io.sockets.emit('update-users', actionObj);
+        }
+        else{
+            io.sockets.emit('username-error', user);
+        }
+
     });
     socket.on('new-message', (message) => {
         console.log('message: ' + message.message);
@@ -27,15 +35,16 @@ io.on('connection', (socket) => {
     socket.on('user-leave', (user) => {
         console.log('user ' + user + ' leave');
         userList = userList.filter(u => u.username !== user);
-        io.sockets.emit('update-users', userList);
+        actionObj = {'action':'user-leave','username':user,'userList':userList};
+        io.sockets.emit('update-users', actionObj);
     });
     socket.on('ping-user', (user) => {
         if (userList.length) {
             userList.map((u, i) => u.ts = u.username === user ? new Date().getTime() : u.ts);
-            updateUsers();
-            io.sockets.emit('update-users', userList);
+            updateUsers(user);
+            actionObj = {'action':'ping','username':user,'userList':userList};
+            io.sockets.emit('update-users', actionObj);
         }
-
     });
 })
 
