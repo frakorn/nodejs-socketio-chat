@@ -16,6 +16,7 @@ const updateUsers = () => {
 }
 
 io.on('connection', (socket) => {
+    /* chat */
     socket.on('new-user', (user) => {
         if(!userList.find(u =>u.username===user)){
             console.log('new user: ' + user);
@@ -46,6 +47,19 @@ io.on('connection', (socket) => {
             io.sockets.emit('update-users', actionObj);
         }
     });
+    /* draw */
+    socket.on('update-draw', (drawObj) => {
+        console.log(`update draw username:${drawObj.username}`)
+        io.sockets.emit('update-draw', drawObj);
+    });
+    socket.on('create-draw', (drawObj) => {
+        console.log(`create draw username:${drawObj.username} type:${drawObj.type} id:${drawObj.draw.target.id} `)
+        io.sockets.emit('create-draw', drawObj);
+    });   
+    socket.on('remove-draw', (drawObj) => {
+        console.log(`remove draw username:${drawObj.username}`)
+        io.sockets.emit('remove-draw', drawObj);
+    });      
 })
 
 server.listen(port, () => {
